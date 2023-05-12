@@ -1,13 +1,15 @@
-require('dotenv').config();
-const express = require('express');
-const { transporter } = require('./nodemailer');
-const { Builder, By } = require('selenium-webdriver');
+
+
+import dotenv from 'dotenv';
+dotenv.config();
+import express from 'express';
+import nodemailer from 'nodemailer';
+import { Builder, By } from 'selenium-webdriver';
 
 const app = express();
 const PORT = 3000;
 
-
-app.get('/scrape', async (req, res) => {
+app.get('/', async (req, res) => {
     // web scraping goes here
     try {
         const data = await WebScrapingLocalTest();
@@ -27,12 +29,12 @@ async function searchCraigslist() {
   try {
     await driver.get(`https://minneapolis.craigslist.org/search/zip?query=${searchQuery}#search=1~list~0~0`);
 
-    var searchForm = await driver.findElement(By.tagName('ol'));
+    let searchForm = await driver.findElement(By.tagName('ol'));
     await driver.sleep(3000);
     let content = await driver.findElement(By.className('results'));
     const results = await driver.findElements(By.className('cl-search-result'));
 
-    await driver.sleep(1000);
+    await driver.sleep(2000);
     return await getResults(results);
 
     } catch(err) {
@@ -45,9 +47,9 @@ async function searchCraigslist() {
 async function getResults(posts) {
     let postDetails = [];
     try {
-        for (post of posts) {
-            const title = await post.findElement(By.className('titlestring')).getText();
-            const url = await post.findElement(By.className('titlestring')).getAttribute('href');
+        for (let i=0; i < posts.length; i++) {
+            const title = await posts[i].findElement(By.className('titlestring')).getText();
+            const url = await posts[i].findElement(By.className('titlestring')).getAttribute('href');
             // const location = await post.findElement(By.css('.supertitle'));
             postDetails.push({
             title: title ?? '',
@@ -61,18 +63,43 @@ async function getResults(posts) {
     return postDetails;
 }
 
-function sendEmail(message) {
-        console.log(message);
-        const htmlToSend = convertToHtml(message);
-        console.log(htmlToSend);
-        const emailList = 'alina.trukhina@gmail.com';
+// create transporter to the gmail address
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: `${process.env.NODE_MAILER_USER}`,
+        pass: `${process.env.NODE_MAILER_USER_KEY}`
+    },
+})
+
+function sendEmailorText(message, phoneNumber) {
+        console.log(phoneNumber);
+        let textToSend = 'text';
+        let htmlToSend = convertToHtml(message);
+        // console.log(htmlToSend);
+        let emailList;
+
+        if (!phoneNumber) {
+            emailList = 'alina.trukhina@gmail.com';
+        } else {
+            emailList = [
+                `${phoneNumber}@txt.att.net`,
+                `${phoneNumber}@sms.myboostmobile.com`,
+                `${phoneNumber}@msg.fi.google.com`,
+                `${phoneNumber}@messaging.sprintpcs.com`,
+                `${phoneNumber}@tmomail.net`,
+                `${phoneNumber}@message.ting.com`,
+                `${phoneNumber}@number@vtext.com`,
+            ]
+            textToSend = convertToText(message);
+        }
 
         // define options for the newsletter email
         const options = {
             from: `"${process.env.NODE_MAILER_USER}@gmail.com" <alina.trukhina@gmail.com>`, // sender address
             bcc: emailList, // list of receivers
-            subject: "Craigslist Listings", // Subject line
-            text: "message", // plain text body
+            subject: "I figured out the Craiglist scraper lol", // Subject line
+            text: textToSend, // plain text body
             html: htmlToSend, // html body
         }
     
@@ -86,23 +113,26 @@ function sendEmail(message) {
         });
 }
 
-function convertToHtml(message) {
+function convertToText(message) {
     let convertedMessage = '';
-    for (item of message) {
+    for (let i=0; i<message.length; i++) {
         convertedMessage += `
-        <p><a href='${item.url}'>${item.title}</a></p>
+        ${message[i].title}: ${message[i].url} \n
         `
     }
     return convertedMessage;
 }
 
-// searchCraigslist().then(results => console.log(results));
-searchCraigslist().then(results => sendEmail(results));
-
-module.exports = { 
-    router,
-    searchCraigslist,
-    getResults,
-    sendEmail,
-    convertToHtml
+function convertToHtml(message) {
+    let convertedMessage = '';
+    for (let i=0; i<message.length; i++) {
+        convertedMessage += `
+        <p><a href='${message[i].url}'>${message[i].title}</a></p>
+        `
+    }
+    return convertedMessage;
 }
+
+
+// searchCraigslist().then(results => console.log(results));
+searchCraigslist().then(results => sendEmailorText(results, '6127704491'));
