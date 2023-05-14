@@ -1,5 +1,3 @@
-
-
 import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
@@ -22,9 +20,9 @@ app.get('/', async (req, res) => {
     }
 });
 
-const searchQuery = 'dirt';
+// const searchQuery = 'dirt';
 
-async function searchCraigslist() {
+async function searchCraigslist(searchQuery) {
   let driver = await new Builder().forBrowser('chrome').build();
   try {
     await driver.get(`https://minneapolis.craigslist.org/search/zip?query=${searchQuery}#search=1~list~0~0`);
@@ -89,7 +87,8 @@ function sendEmailorText(message, phoneNumber) {
                 `${phoneNumber}@messaging.sprintpcs.com`,
                 `${phoneNumber}@tmomail.net`,
                 `${phoneNumber}@message.ting.com`,
-                `${phoneNumber}@number@vtext.com`,
+                `${phoneNumber}@vtext.com`,
+                `${phoneNumber}@txt.voice.google.com`,
             ]
             textToSend = convertToText(message);
         }
@@ -134,5 +133,13 @@ function convertToHtml(message) {
 }
 
 
-// searchCraigslist().then(results => console.log(results));
-searchCraigslist().then(results => sendEmailorText(results, '6127704491'));
+// searchCraigslist('dirt').then(results => console.log(results));
+// searchCraigslist('dirt').then(results => sendEmailorText(results, '9152680465'));
+
+
+const num = process.env.MY_PHONE;
+
+// searchCraigslist('dirt').then(results => sendEmailorText(results, '12408391812'));
+searchCraigslist('table').then(results => sendEmailorText(results, num));
+
+export { searchCraigslist, sendEmailorText }
