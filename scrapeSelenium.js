@@ -25,7 +25,9 @@ app.get('/', async (req, res) => {
 async function searchCraigslist(searchQuery) {
   let driver = await new Builder().forBrowser('chrome').build();
   try {
-    await driver.get(`https://minneapolis.craigslist.org/search/zip?query=${searchQuery}#search=1~list~0~0`);
+    const URL = `https://minneapolis.craigslist.org/search/ela?query=nikon#search=1~list~0~0`;
+    // const URL = `https://minneapolis.craigslist.org/search/zip?query=${searchQuery}#search=1~list~0~0`;
+    await driver.get(URL);
 
     let searchForm = await driver.findElement(By.tagName('ol'));
     await driver.sleep(3000);
@@ -134,12 +136,11 @@ function convertToHtml(message) {
 
 
 // searchCraigslist('dirt').then(results => console.log(results));
-// searchCraigslist('dirt').then(results => sendEmailorText(results, '9152680465'));
 
 
 const num = process.env.MY_PHONE;
 
-// searchCraigslist('dirt').then(results => sendEmailorText(results, '12408391812'));
+
 searchCraigslist('table').then(results => sendEmailorText(results, num));
 
 export { searchCraigslist, sendEmailorText }
