@@ -25,8 +25,8 @@ app.get('/', async (req, res) => {
 async function searchCraigslist(searchQuery) {
   let driver = await new Builder().forBrowser('chrome').build();
   try {
-    const URL = `https://minneapolis.craigslist.org/search/ela?query=nikon#search=1~list~0~0`;
-    // const URL = `https://minneapolis.craigslist.org/search/zip?query=${searchQuery}#search=1~list~0~0`;
+    // const URL = `https://minneapolis.craigslist.org/search/ela?query=nikon#search=1~list~0~0`;
+    const URL = `https://minneapolis.craigslist.org/search/zip?query=${searchQuery}#search=1~list~0~0`;
     await driver.get(URL);
 
     let searchForm = await driver.findElement(By.tagName('ol'));
@@ -80,7 +80,7 @@ function sendEmailorText(message, phoneNumber) {
         let emailList;
 
         if (!phoneNumber) {
-            emailList = 'alina.trukhina@gmail.com';
+            emailList = ['alina.trukhina@gmail.com'];
         } else {
             emailList = [
                 `${phoneNumber}@txt.att.net`,
@@ -134,13 +134,10 @@ function convertToHtml(message) {
     return convertedMessage;
 }
 
-
 // searchCraigslist('dirt').then(results => console.log(results));
-
 
 const num = process.env.MY_PHONE;
 
-
-searchCraigslist('table').then(results => sendEmailorText(results, num));
+searchCraigslist('dirt').then(results => sendEmailorText(results, num));
 
 export { searchCraigslist, sendEmailorText }
