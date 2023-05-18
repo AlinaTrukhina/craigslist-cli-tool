@@ -6,6 +6,9 @@ _Duration: 4 days_
 
 This is a simple tool for searching Craigslist, designed to be run from the command line. The tool is currently set up to search 'free stuff' section of Minneapolis craigslist for 'dirt' and email the search results to my personal email, every day at 7 am and 1 pm.
 
+### Screenshot
+![image](https://github.com/AlinaTrukhina/craigslist-cli-tool/assets/46235932/67b4afbe-b7d7-4828-b304-ce04c320f8fd)
+
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/en/)
@@ -51,7 +54,7 @@ cron.schedule('0 12,17 * * *', () => {
 - JavaScript
 - Express
 - Selenium Webdriver
-- Nodemailer
+- Nodemailer(https://nodemailer.com/about/)
 - [node-cron](https://www.npmjs.com/package/node-cron)
 
 ## Link to Code on GitHub:
