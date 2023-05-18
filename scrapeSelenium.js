@@ -10,7 +10,7 @@ const PORT = 3000;
 app.get('/', async (req, res) => {
     // web scraping goes here
     try {
-        const data = await WebScrapingLocalTest();
+        const data = await searchCraigslist();
         res.status(200).json(data);
     } catch (error) {
         res.status(500).json({
@@ -26,10 +26,9 @@ async function searchCraigslist(searchQuery) {
   let driver = await new Builder().forBrowser('chrome').build();
   try {
     // const URL = `https://minneapolis.craigslist.org/search/ela?query=nikon#search=1~list~0~0`;
-    const URL = `https://minneapolis.craigslist.org/search/zip?query=${searchQuery}#search=1~list~0~0`;
+    const URL = `https://minneapolis.craigslist.org/search/zip?query=${searchQuery}&sort=date#search=1~list~0~100`;
     await driver.get(URL);
 
-    let searchForm = await driver.findElement(By.tagName('ol'));
     await driver.sleep(3000);
     let content = await driver.findElement(By.className('results'));
     const results = await driver.findElements(By.className('cl-search-result'));
@@ -50,11 +49,13 @@ async function getResults(posts) {
         for (let i=0; i < posts.length; i++) {
             const title = await posts[i].findElement(By.className('titlestring')).getText();
             const url = await posts[i].findElement(By.className('titlestring')).getAttribute('href');
-            // const location = await post.findElement(By.css('.supertitle'));
+            let location = await posts[i].findElement(By.className('meta')).getText()
+            .then(result => {let array = result.match(/·(.*?)·/); return array[1];});
+            
             postDetails.push({
             title: title ?? '',
             url: url ?? '',
-            // location: location ?? '',
+            location: location ?? '',
         });
         }
     } catch (error) {
@@ -63,7 +64,7 @@ async function getResults(posts) {
     return postDetails;
 }
 
-// create transporter to the gmail address
+// use Nodemailer to create transporter to the gmail address
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -73,10 +74,8 @@ const transporter = nodemailer.createTransport({
 })
 
 function sendEmailorText(message, phoneNumber) {
-        console.log(phoneNumber);
         let textToSend = 'text';
         let htmlToSend = convertToHtml(message);
-        // console.log(htmlToSend);
         let emailList;
 
         if (!phoneNumber) {
@@ -99,7 +98,7 @@ function sendEmailorText(message, phoneNumber) {
         const options = {
             from: `"${process.env.NODE_MAILER_USER}@gmail.com" <alina.trukhina@gmail.com>`, // sender address
             bcc: emailList, // list of receivers
-            subject: "I figured out the Craiglist scraper lol", // Subject line
+            subject: "Your Craiglist results", // Subject line
             text: textToSend, // plain text body
             html: htmlToSend, // html body
         }
@@ -128,7 +127,7 @@ function convertToHtml(message) {
     let convertedMessage = '';
     for (let i=0; i<message.length; i++) {
         convertedMessage += `
-        <p><a href='${message[i].url}'>${message[i].title}</a></p>
+        <p><a href='${message[i].url}'>${message[i].title}</a> ${message[i].location}</p>
         `
     }
     return convertedMessage;
@@ -138,6 +137,6 @@ function convertToHtml(message) {
 
 const num = process.env.MY_PHONE;
 
-searchCraigslist('dirt').then(results => sendEmailorText(results, num));
+searchCraigslist('dirt').then(results => sendEmailorText(results));
 
 export { searchCraigslist, sendEmailorText }
