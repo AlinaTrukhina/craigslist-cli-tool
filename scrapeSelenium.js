@@ -6,6 +6,7 @@ import { Builder, By } from 'selenium-webdriver';
 
 const app = express();
 const PORT = 3000;
+const num = process.env.MY_PHONE;
 
 app.get('/', async (req, res) => {
     // web scraping goes here
@@ -20,12 +21,10 @@ app.get('/', async (req, res) => {
     }
 });
 
-// const searchQuery = 'dirt';
-
 async function searchCraigslist(searchQuery) {
-  let driver = await new Builder().forBrowser('chrome').build();
+  let driver = await new Builder().forBrowser('chrome')
+    .build();
   try {
-    // const URL = `https://minneapolis.craigslist.org/search/ela?query=nikon#search=1~list~0~0`;
     const URL = `https://minneapolis.craigslist.org/search/zip?query=${searchQuery}&sort=date#search=1~list~0~100`;
     await driver.get(URL);
 
@@ -133,10 +132,5 @@ function convertToHtml(message) {
     return convertedMessage;
 }
 
-// searchCraigslist('dirt').then(results => console.log(results));
 
-const num = process.env.MY_PHONE;
-
-searchCraigslist('dirt').then(results => sendEmailorText(results));
-
-export { searchCraigslist, sendEmailorText }
+export { searchCraigslist, sendEmailorText, convertToText }
