@@ -46,7 +46,7 @@ cron.schedule('0 12,17 * * *', () => {
 5. Run app in background with [PM2](https://pm2.keymetrics.io/):
     1. In terminal, navigate to the repository directory.
     2. Run `npm install pm2 -g`
-    3. Run `pm2 start index.js --name 'OPTIONAL_APP_NAME'`. PM2 will start te app, daemonize it, and run it in background.
+    3. Run `pm2 start index.js --name 'OPTIONAL_APP_NAME'`. PM2 will start the app, daemonize it, and run it in background.
     4. To stop the tool, run `pm2 stop OPTIONAL_APP_NAME`.
 
 
