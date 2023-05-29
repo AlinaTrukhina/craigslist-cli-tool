@@ -41,7 +41,7 @@ This is a simple tool for searching Craigslist, designed to be run from the comm
   ```
 4. To change the times when you receive emails, update the *cron.schedule* line. For example, to receive an email at 12:00 pm and 6:00 pm every day, update the code to
 ```javascript
-cron.schedule('0 12,17 * * *', () => {
+cron.schedule('0 12,18 * * *', () => {
 ```
 5. Run app in background with [PM2](https://pm2.keymetrics.io/):
     1. In terminal, navigate to the repository directory.

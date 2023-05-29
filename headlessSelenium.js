@@ -6,7 +6,6 @@ import * as chromeD from 'selenium-webdriver';
 import chrome from 'selenium-webdriver/chrome.js';
 
 const app = express();
-const PORT = 3000;
 const num = process.env.MY_PHONE;
 
 app.get('/', async (req, res) => {
@@ -30,7 +29,7 @@ async function searchCraigslist(searchQuery) {
     const URL = `https://minneapolis.craigslist.org/search/zip?query=${searchQuery}&sort=date#search=1~list~0~100`;
     await driver.get(URL);
 
-    await driver.sleep(3000);
+    await driver.sleep(3000); // wait 3 seconds, ensures that the listings results are loaded before trying to find the list items
     const results = await driver.findElements(chromeD.By.className('cl-search-result'));
 
     await driver.sleep(2000);
@@ -74,34 +73,34 @@ const transporter = nodemailer.createTransport({
 })
 
 function sendEmailorText(message, phoneNumber) {
-        let textToSend = 'text';
-        let htmlToSend = convertToHtml(message);
-        let emailList;
+    let textToSend = 'text';
+    let htmlToSend = convertToHtml(message);
+    let emailList;
 
-        if (!phoneNumber) {
-            emailList = ['alina.trukhina@gmail.com'];
-        } else {
-            emailList = [
-                `${phoneNumber}@txt.att.net`,
-                `${phoneNumber}@sms.myboostmobile.com`,
-                `${phoneNumber}@msg.fi.google.com`,
-                `${phoneNumber}@messaging.sprintpcs.com`,
-                `${phoneNumber}@tmomail.net`,
-                `${phoneNumber}@message.ting.com`,
-                `${phoneNumber}@vtext.com`,
-                `${phoneNumber}@txt.voice.google.com`,
-            ]
-            textToSend = convertToText(message);
-        }
+    if (!phoneNumber) {
+        emailList = ['alina.trukhina@gmail.com'];
+    } else {
+        emailList = [
+            `${phoneNumber}@txt.att.net`,
+            `${phoneNumber}@sms.myboostmobile.com`,
+            `${phoneNumber}@msg.fi.google.com`,
+            `${phoneNumber}@messaging.sprintpcs.com`,
+            `${phoneNumber}@tmomail.net`,
+            `${phoneNumber}@message.ting.com`,
+            `${phoneNumber}@vtext.com`,
+            `${phoneNumber}@txt.voice.google.com`,
+        ]
+        textToSend = convertToText(message);
+    }
 
-        // define options for the newsletter email
-        const options = {
-            from: `"${process.env.NODE_MAILER_USER}@gmail.com" <alina.trukhina@gmail.com>`, // sender address
-            bcc: emailList, // list of receivers
-            subject: "Your Craiglist results", // Subject line
-            text: textToSend, // plain text body
-            html: htmlToSend, // html body
-        }
+    // define options for the newsletter email
+    const options = {
+        from: `"${process.env.NODE_MAILER_USER}@gmail.com" <alina.trukhina@gmail.com>`, // sender address
+        bcc: emailList, // list of receivers
+        subject: "Your Craiglist results", // Subject line
+        text: textToSend, // plain text body
+        html: htmlToSend, // html body
+    }
     
     // transporter sends the data to the email server based on options above
         transporter.sendMail(options, function (err, info) {
@@ -133,6 +132,6 @@ function convertToHtml(message) {
     return convertedMessage;
 }
 
-// searchCraigslist('dirt').then(results => console.log(results));
+searchCraigslist('dirt').then(results => console.log(results))
 
 export { searchCraigslist, sendEmailorText, convertToText }
